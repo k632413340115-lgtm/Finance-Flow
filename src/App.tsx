@@ -93,15 +93,31 @@ export default function App() {
     const saved = localStorage.getItem('wealthflow_transactions');
     return saved ? JSON.parse(saved) : [];
   });
+
+  const [tickers, setTickers] = useState(() => {
+    const saved = localStorage.getItem('wealthflow_tickers');
+    return saved ? JSON.parse(saved) : [
+      { symbol: 'FPT', name: 'Công nghệ FPT' },
+      { symbol: 'VCB', name: 'Vietcombank' },
+      { symbol: 'HPG', name: 'Thép Hòa Phát' },
+      { symbol: 'VIC', name: 'Vingroup' },
+      { symbol: 'VNM', name: 'Vinamilk' }
+    ];
+  });
   
   const [investmentRate, setInvestmentRate] = useState(40); // 30% - 50%
   const [growthRate, setGrowthRate] = useState(17.5); // 15% - 20%
   const [activeTab, setActiveTab] = useState<'dashboard' | 'income' | 'expense' | 'simulator' | 'analysis'>('dashboard');
+  const [isEditingTickers, setIsEditingTickers] = useState(false);
   
   // Persistence
   useEffect(() => {
     localStorage.setItem('wealthflow_transactions', JSON.stringify(transactions));
   }, [transactions]);
+
+  useEffect(() => {
+    localStorage.setItem('wealthflow_tickers', JSON.stringify(tickers));
+  }, [tickers]);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -192,12 +208,12 @@ export default function App() {
     return {
       points,
       avgMonthlyInvest,
-      allocationPerStock: avgMonthlyInvest / 5,
+      allocationPerStock: avgMonthlyInvest / tickers.length,
       m10: calculateValue(10),
       m20: calculateValue(20),
       m30: calculateValue(30)
     };
-  }, [monthlyData, investmentRate, growthRate]);
+  }, [monthlyData, investmentRate, growthRate, tickers.length]);
 
   // Handlers
   const handleSubmit = (type: TransactionType) => (e: React.FormEvent) => {
@@ -545,9 +561,58 @@ export default function App() {
                       <MilestoneCard label="30 Year Horizon" value={simulationData.m30} year={30} color="bg-primary text-cream" isTotal />
                    </div>
 
-                   <Card title="Simulated Portfolio Allocation (Top 5 Equities)">
+                   <Card title="Simulated Portfolio Allocation (Top Equities)">
+                      <div className="flex justify-between items-center mb-6">
+                        <div className="text-[10px] font-bold uppercase opacity-40 tracking-widest italic">Capital Distribution Analysis</div>
+                        <button 
+                         onClick={() => setIsEditingTickers(!isEditingTickers)}
+                         className="text-[10px] font-bold uppercase tracking-widest text-primary border border-primary/20 px-3 py-1 rounded bg-white hover:bg-primary hover:text-cream transition-all flex items-center gap-1.5"
+                        >
+                          <SettingsIcon size={12} /> {isEditingTickers ? "Lock Portfolio" : "Configure Equities"}
+                        </button>
+                      </div>
+
+                      <AnimatePresence>
+                        {isEditingTickers && (
+                          <motion.div 
+                           initial={{ height: 0, opacity: 0 }}
+                           animate={{ height: 'auto', opacity: 1 }}
+                           exit={{ height: 0, opacity: 0 }}
+                           className="mb-8 overflow-hidden"
+                          >
+                            <div className="p-6 bg-primary/5 border border-primary/10 rounded-lg grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                              {tickers.map((ticker: any, idx: number) => (
+                                <div key={idx} className="space-y-2">
+                                  <input 
+                                   className="w-full text-xs font-bold bg-white border border-border-subtle p-2 outline-none focus:border-primary/40 rounded"
+                                   value={ticker.symbol}
+                                   placeholder="Symbol"
+                                   onChange={(e) => {
+                                     const newTickers = [...tickers];
+                                     newTickers[idx].symbol = e.target.value.toUpperCase();
+                                     setTickers(newTickers);
+                                   }}
+                                  />
+                                  <input 
+                                   className="w-full text-[10px] italic bg-white/60 border border-border-subtle p-2 outline-none focus:border-primary/40 rounded"
+                                   value={ticker.name}
+                                   placeholder="Company Name"
+                                   onChange={(e) => {
+                                     const newTickers = [...tickers];
+                                     newTickers[idx].name = e.target.value;
+                                     setTickers(newTickers);
+                                   }}
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                            <p className="text-[9px] uppercase font-bold opacity-30 mt-2 text-center tracking-widest italic">Live update engaged: simulation targets will recalibrate based on these identifiers.</p>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
                       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                        {STOCK_TICKERS.map(stock => (
+                        {tickers.map((stock: any) => (
                           <div key={stock.symbol} className="border border-border-subtle p-5 rounded-lg bg-white/40 hover:bg-white/60 transition-all hover:scale-[1.02] text-center group cursor-default">
                             <div className="text-sm font-bold tracking-tighter text-primary mb-1 underline underline-offset-2">{stock.symbol}</div>
                             <div className="text-[9px] opacity-50 uppercase font-bold tracking-widest mb-4 truncate">{stock.name}</div>
