@@ -69,6 +69,7 @@ interface Transaction {
   amount: number;
   date: string;
   note?: string;
+  isRecurring?: boolean;
 }
 
 interface MonthlySummary {
@@ -140,7 +141,8 @@ export default function App() {
     amount: '',
     date: format(new Date(), 'yyyy-MM-dd'),
     type: 'INCOME' as TransactionType,
-    note: ''
+    note: '',
+    isRecurring: false
   });
 
   // Basic Calculations
@@ -157,7 +159,7 @@ export default function App() {
     
     const interval = eachMonthOfInterval({
       start: startOfMonth(firstDate),
-      end: endOfMonth(lastDate)
+      end: endOfMonth(new Date() > lastDate ? new Date() : lastDate)
     });
 
     interval.forEach(date => {
@@ -172,10 +174,23 @@ export default function App() {
     });
 
     transactions.forEach(t => {
-      const key = format(parseISO(t.date), 'MMM yyyy');
-      if (months[key]) {
-        if (t.type === 'INCOME') months[key].income += t.amount;
-        else months[key].expense += t.amount;
+      const tDate = parseISO(t.date);
+      const tKey = format(tDate, 'MMM yyyy');
+      
+      if (t.isRecurring) {
+        // Apply to all months from start date onwards within the displayed interval
+        Object.keys(months).forEach(monthKey => {
+          const mDate = parseISO(months[monthKey].dateStr + '-01'); // Approximation for check
+          if (mDate >= startOfMonth(tDate)) {
+            if (t.type === 'INCOME') months[monthKey].income += t.amount;
+            else months[monthKey].expense += t.amount;
+          }
+        });
+      } else {
+        if (months[tKey]) {
+          if (t.type === 'INCOME') months[tKey].income += t.amount;
+          else months[tKey].expense += t.amount;
+        }
       }
     });
 
@@ -191,11 +206,6 @@ export default function App() {
     return existing || { month: now, income: 0, expense: 0, net: 0 };
   }, [monthlyData]);
 
-  const totalBalance = useMemo(() => {
-    return transactions.reduce((acc, t) => {
-      return t.type === 'INCOME' ? acc + t.amount : acc - t.amount;
-    }, 0);
-  }, [transactions]);
 
   // Simulation Logic
   const simulationData = useMemo(() => {
@@ -247,7 +257,8 @@ export default function App() {
       amount: parseFloat(formData.amount),
       date: formData.date,
       type: type,
-      note: formData.note
+      note: formData.note,
+      isRecurring: formData.isRecurring
     };
 
     setTransactions([newTransaction, ...transactions]);
@@ -255,16 +266,55 @@ export default function App() {
       ...formData,
       name: '',
       amount: '',
-      note: ''
+      note: '',
+      isRecurring: false
     });
   };
 
   const deleteTransaction = (id: string) => {
-    setTransactions(transactions.filter(t => t.id !== id));
+    setTransactions(transactions.filter(t => !id.startsWith(t.id)));
   };
 
-  const incomeTransactions = transactions.filter(t => t.type === 'INCOME');
-  const expenseTransactions = transactions.filter(t => t.type === 'EXPENSE');
+  const expandedTransactions = useMemo(() => {
+    const list: (Transaction & { isInstance?: boolean })[] = [];
+    const now = new Date();
+    const currentMonthStart = startOfMonth(now);
+
+    transactions.forEach(t => {
+      if (t.isRecurring) {
+        const tDate = parseISO(t.date);
+        // Ensure we don't try to generate interval if start > end
+        const endRange = currentMonthStart > startOfMonth(tDate) ? currentMonthStart : startOfMonth(tDate);
+        
+        const interval = eachMonthOfInterval({
+          start: startOfMonth(tDate),
+          end: endRange
+        });
+
+        interval.forEach(date => {
+          list.push({
+            ...t,
+            id: `${t.id}-${format(date, 'yyyy-MM')}`,
+            date: format(date, 'yyyy-MM-dd'),
+            isInstance: true
+          });
+        });
+      } else {
+        list.push(t);
+      }
+    });
+
+    return list.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [transactions]);
+
+  const totalBalance = useMemo(() => {
+    return expandedTransactions.reduce((acc, t) => {
+      return t.type === 'INCOME' ? acc + t.amount : acc - t.amount;
+    }, 0);
+  }, [expandedTransactions]);
+
+  const incomeTransactions = expandedTransactions.filter(t => t.type === 'INCOME');
+  const expenseTransactions = expandedTransactions.filter(t => t.type === 'EXPENSE');
 
   return (
     <div className="h-screen bg-cream flex flex-col overflow-hidden">
@@ -469,6 +519,19 @@ export default function App() {
                         />
                       </div>
 
+                      <div className="flex items-center gap-2 px-1">
+                        <input 
+                          type="checkbox"
+                          id="recurring-toggle"
+                          checked={formData.isRecurring}
+                          onChange={e => setFormData({...formData, isRecurring: e.target.checked})}
+                          className="w-4 h-4 accent-primary"
+                        />
+                        <label htmlFor="recurring-toggle" className="text-[10px] font-bold uppercase tracking-widest text-primary/70 cursor-pointer">
+                          Recurring monthly (Cố định hàng tháng)
+                        </label>
+                      </div>
+
                       <button 
                         type="submit"
                         className="w-full bg-primary text-cream py-4 rounded font-bold uppercase tracking-widest text-xs hover:opacity-90 transition-opacity mt-4 shadow-md"
@@ -487,8 +550,15 @@ export default function App() {
                          (activeTab === 'income' ? incomeTransactions : expenseTransactions).map((t) => (
                           <div key={t.id} className="group flex justify-between items-center border-b border-border-subtle/30 py-4 hover:bg-white/40 px-4 rounded-lg transition-all">
                             <div className="flex-1">
-                              <h4 className="text-sm font-bold tracking-tight">{t.name}</h4>
-                              <div className="flex items-center gap-3 text-[10px] opacity-40 uppercase font-bold tracking-widest mt-1">
+                               <h4 className="text-sm font-bold tracking-tight flex items-center gap-2">
+                                 {t.name}
+                                 {t.isRecurring && (
+                                   <span className="bg-primary/10 text-primary text-[8px] px-1.5 py-0.5 rounded flex items-center gap-1 border border-primary/20">
+                                     <History size={8} /> {t.isInstance ? 'Instance' : 'Recurring'}
+                                   </span>
+                                 )}
+                               </h4>
+                               <div className="flex items-center gap-3 text-[10px] opacity-40 uppercase font-bold tracking-widest mt-1">
                                 <span className="flex items-center gap-1"><Calendar size={10} /> {format(parseISO(t.date), 'MMM dd, yyyy')}</span>
                                 {t.note && <span>&bull; {t.note}</span>}
                               </div>
