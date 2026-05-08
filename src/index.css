@@ -7,11 +7,11 @@
   --color-glass: rgba(255, 255, 255, 0.15);
   --color-border-subtle: rgba(116, 7, 14, 0.2);
   
-  --font-serif: "Cormorant Garamond", serif;
-  --font-sans: "Inter", system-ui, sans-serif;
+  --font-serif: "Montserrat", serif;
+  --font-sans: "Montserrat", system-ui, sans-serif;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Inter:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700&display=swap');
 
 body {
   @apply bg-cream text-primary font-sans antialiased;
