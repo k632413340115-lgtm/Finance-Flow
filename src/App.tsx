@@ -90,12 +90,12 @@ const STOCK_TICKERS = [
 export default function App() {
   // State
   const [transactions, setTransactions] = useState<Transaction[]>(() => {
-    const saved = localStorage.getItem('wealthflow_transactions');
+    const saved = localStorage.getItem('financeflow_transactions');
     return saved ? JSON.parse(saved) : [];
   });
 
   const [tickers, setTickers] = useState(() => {
-    const saved = localStorage.getItem('wealthflow_tickers');
+    const saved = localStorage.getItem('financeflow_tickers');
     return saved ? JSON.parse(saved) : [
       { symbol: 'FPT', name: 'Công nghệ FPT' },
       { symbol: 'VCB', name: 'Vietcombank' },
@@ -112,11 +112,11 @@ export default function App() {
   
   // Persistence
   useEffect(() => {
-    localStorage.setItem('wealthflow_transactions', JSON.stringify(transactions));
+    localStorage.setItem('financeflow_transactions', JSON.stringify(transactions));
   }, [transactions]);
 
   useEffect(() => {
-    localStorage.setItem('wealthflow_tickers', JSON.stringify(tickers));
+    localStorage.setItem('financeflow_tickers', JSON.stringify(tickers));
   }, [tickers]);
 
   // Form State
@@ -184,10 +184,16 @@ export default function App() {
 
   // Simulation Logic
   const simulationData = useMemo(() => {
-    const recentNetFlows = monthlyData.slice(-6).map(m => Math.max(0, m.net));
-    const avgMonthlyInvest = recentNetFlows.length > 0 
-      ? (recentNetFlows.reduce((a, b) => a + b, 0) / recentNetFlows.length) * (investmentRate / 100)
-      : 0;
+    // Force a "Healthy Preview" if no transactions exist
+    let baseInvest = 5000000; // 5M VND default seed
+    
+    if (monthlyData.length > 0) {
+      const recentNetFlows = monthlyData.slice(-6).map(m => Math.max(0, m.net));
+      const calculatedBase = recentNetFlows.reduce((a, b) => a + b, 0) / recentNetFlows.length;
+      if (calculatedBase > 0) baseInvest = calculatedBase;
+    }
+
+    const avgMonthlyInvest = baseInvest * (investmentRate / 100);
     
     const calculateValue = (years: number) => {
       const monthlyRate = growthRate / 100 / 12;
@@ -198,17 +204,18 @@ export default function App() {
 
     const points = [];
     for (let i = 0; i <= 30; i++) {
+        const val = calculateValue(i);
         points.push({
             year: i,
-            value: calculateValue(i),
-            investment: avgMonthlyInvest * i * 12
+            value: Math.floor(val),
+            investment: Math.floor(avgMonthlyInvest * i * 12)
         });
     }
 
     return {
       points,
       avgMonthlyInvest,
-      allocationPerStock: avgMonthlyInvest / tickers.length,
+      allocationPerStock: tickers.length > 0 ? avgMonthlyInvest / tickers.length : 0,
       m10: calculateValue(10),
       m20: calculateValue(20),
       m30: calculateValue(30)
@@ -250,8 +257,8 @@ export default function App() {
       {/* Top Navigation */}
       <nav className="h-16 border-b border-border-subtle flex items-center justify-between px-8 bg-primary text-cream z-30 shrink-0">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-cream flex items-center justify-center font-bold text-primary rounded-sm">W</div>
-          <span className="text-xl font-bold tracking-tighter uppercase whitespace-nowrap">WealthFlow &copy;</span>
+          <div className="w-8 h-8 bg-cream flex items-center justify-center font-bold text-primary rounded-sm">F</div>
+          <span className="text-xl font-bold tracking-tighter uppercase whitespace-nowrap">FinanceFlow &copy;</span>
         </div>
         
         <div className="hidden md:flex gap-6 lg:gap-10 text-[11px] font-bold uppercase tracking-widest">
@@ -335,7 +342,7 @@ export default function App() {
                   <div className="flex-1 bg-white/20 rounded-xl p-8 border border-border-subtle flex flex-col min-h-[400px]">
                     <div className="flex-1 w-full">
                       <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={monthlyData} margin={{ top: 10, right: 0, left: -10, bottom: 0 }}>
+                        <BarChart data={monthlyData} margin={{ top: 20, right: 10, left: 30, bottom: 0 }}>
                           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(116, 7, 14, 0.1)" />
                           <XAxis dataKey="month" stroke="rgba(116, 7, 14, 0.4)" fontSize={10} tickLine={false} axisLine={false} />
                           <YAxis 
@@ -349,7 +356,7 @@ export default function App() {
                             contentStyle={{ backgroundColor: '#F4E3B2', border: '1px solid rgba(116, 7, 14, 0.2)', borderRadius: '4px', fontSize: '12px' }}
                             itemStyle={{ color: '#74070E' }}
                           />
-                          <Legend verticalAlign="top" height={36} iconType="circle" />
+                          <Legend verticalAlign="top" align="right" height={36} iconType="circle" wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', textTransform: 'uppercase', opacity: 0.6 }} />
                           <Bar name="Income" dataKey="income" fill="#74070E" radius={[2, 2, 0, 0]} barSize={24} />
                           <Bar name="Expense" dataKey="expense" fill="rgba(116, 7, 14, 0.2)" radius={[2, 2, 0, 0]} barSize={24} />
                         </BarChart>
@@ -621,38 +628,66 @@ export default function App() {
                           </div>
                         ))}
                       </div>
-                   </Card>
+                    </Card>
 
-                   <div className="bg-white/20 rounded-xl p-8 border border-border-subtle flex flex-col min-h-[400px] shadow-sm relative">
-                      <h3 className="text-[11px] font-bold uppercase tracking-widest opacity-60 mb-8 italic">Trajectory of Compounded Asset Value</h3>
-                      <div className="flex-1 w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <AreaChart data={simulationData.points} margin={{ top: 0, right: 0, left: 20, bottom: 0 }}>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(116, 7, 14, 0.05)" />
-                            <XAxis dataKey="year" stroke="rgba(116, 7, 14, 0.4)" fontSize={10} tickLine={false} axisLine={false} unit="y" />
-                            <YAxis 
-                                stroke="rgba(116, 7, 14, 0.4)" fontSize={10} tickLine={false} axisLine={false} 
-                                tickFormatter={(val) => formatCurrency(val)} 
-                            />
-                            <Tooltip 
-                                contentStyle={{ backgroundColor: '#F4E3B2', border: '1px solid rgba(116, 7, 14, 0.2)', borderRadius: '2px', fontSize: '11px' }}
-                                labelFormatter={(label) => `Year ${label}`}
-                            />
-                            <Legend verticalAlign="top" height={36} />
-                            <Area 
-                                name="Projected Value"
-                                type="monotone" dataKey="value" stroke="#74070E" strokeWidth={2}
-                                fill="#74070E" fillOpacity={0.05} 
-                            />
-                            <Area 
-                                name="Principal Basis"
-                                type="monotone" dataKey="investment" stroke="rgba(16, 185, 129, 0.3)" strokeWidth={1}
-                                strokeDasharray="5 5" fill="transparent" 
-                            />
-                          </AreaChart>
-                        </ResponsiveContainer>
-                      </div>
-                      <div className="flex justify-center gap-8 mt-6 pb-2">
+                    <div className="bg-white/40 rounded-xl p-8 border border-border-subtle flex flex-col shadow-sm relative">
+                       <h3 className="text-[11px] font-bold uppercase tracking-widest opacity-60 mb-8 italic">Trajectory of Compounded Asset Value</h3>
+                       <div className="w-full h-[400px] relative">
+                         <ResponsiveContainer width="100%" height="100%">
+                           <AreaChart 
+                             data={simulationData.points} 
+                             margin={{ top: 20, right: 30, left: 10, bottom: 10 }}
+                           >
+                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(116, 7, 14, 0.15)" />
+                             <XAxis 
+                               dataKey="year" 
+                               stroke="rgba(116, 7, 14, 0.4)" 
+                               fontSize={10} 
+                               tickLine={false} 
+                               axisLine={false} 
+                               unit="y" 
+                               dy={10} 
+                             />
+                             <YAxis 
+                               stroke="rgba(116, 7, 14, 0.4)" 
+                               fontSize={10} 
+                               tickLine={false} 
+                               axisLine={false} 
+                               tickFormatter={(val) => formatCurrency(val)} 
+                               width={70} 
+                             />
+                             <Tooltip 
+                               contentStyle={{ backgroundColor: '#F4E3B2', border: '1px solid rgba(116, 7, 14, 0.2)', borderRadius: '2px', fontSize: '11px' }} 
+                               labelFormatter={(label) => `Year ${label}`} 
+                               formatter={(value: any) => [formatCurrency(value) + ' ₫', '']}
+                             />
+                             <Area 
+                               name="Projected Value" 
+                               type="monotone" 
+                               dataKey="value" 
+                               stroke="#74070E" 
+                               strokeWidth={3} 
+                               fill="#74070E" 
+                               fillOpacity={0.15} 
+                               isAnimationActive={true}
+                               animationDuration={800} 
+                             />
+                             <Area 
+                               name="Principal Basis" 
+                               type="monotone" 
+                               dataKey="investment" 
+                               stroke="rgba(16, 185, 129, 0.6)" 
+                               strokeWidth={2} 
+                               strokeDasharray="5 5" 
+                               fill="transparent" 
+                               isAnimationActive={true}
+                               animationDuration={800} 
+                             />
+                           </AreaChart>
+                         </ResponsiveContainer>
+                       </div>
+
+                      <div className="flex justify-center gap-8 mt-12 pb-2">
                         <div className="flex items-center gap-2">
                           <div className="w-2.5 h-2.5 bg-primary rounded-full" />
                           <span className="text-[10px] font-bold uppercase opacity-60 tracking-widest">Total Projected Capital</span>
@@ -662,10 +697,10 @@ export default function App() {
                           <span className="text-[10px] font-bold uppercase opacity-60 tracking-widest">Principal Basis</span>
                         </div>
                       </div>
-                   </div>
-                 </div>
-              </motion.div>
-            )}
+                    </div>
+                  </div>
+               </motion.div>
+             )}
 
             {activeTab === 'analysis' && (
               <motion.div 
