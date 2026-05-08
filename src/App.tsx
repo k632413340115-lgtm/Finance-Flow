@@ -46,6 +46,19 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+function formatCurrency(value: number) {
+  if (value >= 1_000_000_000) {
+    return (value / 1_000_000_000).toLocaleString(undefined, { maximumFractionDigits: 1 }) + 'B';
+  }
+  if (value >= 1_000_000) {
+    return (value / 1_000_000).toLocaleString(undefined, { maximumFractionDigits: 1 }) + 'M';
+  }
+  if (value >= 1_000) {
+    return (value / 1_000).toLocaleString(undefined, { maximumFractionDigits: 1 }) + 'K';
+  }
+  return value.toLocaleString();
+}
+
 /** Types */
 type TransactionType = 'INCOME' | 'EXPENSE';
 
@@ -306,14 +319,21 @@ export default function App() {
                   <div className="flex-1 bg-white/20 rounded-xl p-8 border border-border-subtle flex flex-col min-h-[400px]">
                     <div className="flex-1 w-full">
                       <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={monthlyData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
+                        <BarChart data={monthlyData} margin={{ top: 10, right: 0, left: -10, bottom: 0 }}>
                           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(116, 7, 14, 0.1)" />
                           <XAxis dataKey="month" stroke="rgba(116, 7, 14, 0.4)" fontSize={10} tickLine={false} axisLine={false} />
-                          <YAxis stroke="rgba(116, 7, 14, 0.4)" fontSize={10} tickLine={false} axisLine={false} />
+                          <YAxis 
+                            stroke="rgba(116, 7, 14, 0.4)" 
+                            fontSize={10} 
+                            tickLine={false} 
+                            axisLine={false}
+                            tickFormatter={(val) => formatCurrency(val)}
+                          />
                           <Tooltip 
                             contentStyle={{ backgroundColor: '#F4E3B2', border: '1px solid rgba(116, 7, 14, 0.2)', borderRadius: '4px', fontSize: '12px' }}
                             itemStyle={{ color: '#74070E' }}
                           />
+                          <Legend verticalAlign="top" height={36} iconType="circle" />
                           <Bar name="Income" dataKey="income" fill="#74070E" radius={[2, 2, 0, 0]} barSize={24} />
                           <Bar name="Expense" dataKey="expense" fill="rgba(116, 7, 14, 0.2)" radius={[2, 2, 0, 0]} barSize={24} />
                         </BarChart>
@@ -547,17 +567,20 @@ export default function App() {
                             <XAxis dataKey="year" stroke="rgba(116, 7, 14, 0.4)" fontSize={10} tickLine={false} axisLine={false} unit="y" />
                             <YAxis 
                                 stroke="rgba(116, 7, 14, 0.4)" fontSize={10} tickLine={false} axisLine={false} 
-                                tickFormatter={(val) => `${(val / 1000000000).toFixed(1)}B ₫`} 
+                                tickFormatter={(val) => formatCurrency(val)} 
                             />
                             <Tooltip 
                                 contentStyle={{ backgroundColor: '#F4E3B2', border: '1px solid rgba(116, 7, 14, 0.2)', borderRadius: '2px', fontSize: '11px' }}
                                 labelFormatter={(label) => `Year ${label}`}
                             />
+                            <Legend verticalAlign="top" height={36} />
                             <Area 
+                                name="Projected Value"
                                 type="monotone" dataKey="value" stroke="#74070E" strokeWidth={2}
                                 fill="#74070E" fillOpacity={0.05} 
                             />
                             <Area 
+                                name="Principal Basis"
                                 type="monotone" dataKey="investment" stroke="rgba(16, 185, 129, 0.3)" strokeWidth={1}
                                 strokeDasharray="5 5" fill="transparent" 
                             />
@@ -601,7 +624,13 @@ export default function App() {
                                 <AreaChart data={monthlyData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(116, 7, 14, 0.05)" />
                                     <XAxis dataKey="month" stroke="rgba(116, 7, 14, 0.4)" fontSize={10} tickLine={false} axisLine={false} />
-                                    <YAxis stroke="rgba(116, 7, 14, 0.4)" fontSize={10} tickLine={false} axisLine={false} />
+                                    <YAxis 
+                                        stroke="rgba(116, 7, 14, 0.4)" 
+                                        fontSize={10} 
+                                        tickLine={false} 
+                                        axisLine={false}
+                                        tickFormatter={(val) => formatCurrency(val)}
+                                    />
                                     <Tooltip contentStyle={{ backgroundColor: '#F4E3B2', border: '1px solid rgba(116, 7, 14, 0.2)', fontSize: '12px' }} />
                                     <Legend />
                                     <Area type="monotone" name="Income Delta" dataKey="income" stroke="#10B981" fill="#10B981" fillOpacity={0.05} />
@@ -625,7 +654,7 @@ export default function App() {
                             <div className="p-5 border border-primary/10 rounded-lg bg-primary text-cream shadow-md">
                                 <span className="text-[10px] font-bold uppercase opacity-60 tracking-widest mb-2 block">Investment Utility</span>
                                 <div className="text-2xl font-bold">
-                                    {(currentMonthSummary.net * (investmentRate / 100)).toLocaleString(undefined, { maximumFractionDigits: 0 })} ₫ / mo
+                                    {(currentMonthSummary.net * (investmentRate / 100)).toLocaleString(undefined, { maximumFractionDigits: 0 })} ₫ / month
                                 </div>
                                 <div className="text-[9px] uppercase font-bold mt-1 opacity-60 italic">Current Capital Engine</div>
                             </div>
