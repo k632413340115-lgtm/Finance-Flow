@@ -237,7 +237,7 @@ export default function App() {
           <div className="text-right hidden sm:block">
             <p className="text-[9px] uppercase opacity-60 font-bold leading-none mb-1">Portfolio Balance</p>
             <p className="text-sm font-bold tracking-tight">
-              ${totalBalance.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+              VND{totalBalance.toLocaleString(undefined, { maximumFractionDigits: 0 })}
             </p>
           </div>
           <div className="w-8 h-8 rounded-full border border-cream/20 bg-white/10 flex items-center justify-center cursor-pointer hover:bg-white/20 transition-colors lg:hidden" onClick={() => {
@@ -338,9 +338,9 @@ export default function App() {
                           {monthlyData.slice().reverse().map((m) => (
                             <tr key={m.month} className="hover:bg-primary/5 transition-colors">
                               <td className="py-3 px-2 font-bold italic">{m.month}</td>
-                              <td className="py-3 px-2 opacity-80">${m.income.toLocaleString()}</td>
-                              <td className="py-3 px-2 opacity-80">${m.expense.toLocaleString()}</td>
-                              <td className="py-3 px-2 font-bold text-right italic underline underline-offset-4 decoration-primary/20">${m.net.toLocaleString()}</td>
+                              <td className="py-3 px-2 opacity-80">VND{m.income.toLocaleString()}</td>
+                              <td className="py-3 px-2 opacity-80">VND{m.expense.toLocaleString()}</td>
+                              <td className="py-3 px-2 font-bold text-right italic underline underline-offset-4 decoration-primary/20">VND{m.net.toLocaleString()}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -438,7 +438,7 @@ export default function App() {
                             </div>
                             <div className="flex items-center gap-6">
                               <span className={cn("text-lg font-bold tracking-tighter", t.type === 'INCOME' ? "text-emerald-800" : "text-primary italic opacity-80")}>
-                                {t.type === 'INCOME' ? '+' : '-'}${t.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                {t.type === 'INCOME' ? '+' : '-'}VND{t.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                               </span>
                               <button onClick={() => deleteTransaction(t.id)} className="opacity-0 group-hover:opacity-100 transition-opacity text-primary/20 hover:text-primary">
                                 <Trash2 size={16} />
@@ -447,7 +447,7 @@ export default function App() {
                           </div>
                          ))
                        ) : (
-                         <EmptyState message={`No ${activeTab} entries recorded.`} />
+                         <EmptyState message={`No VND{activeTab} entries recorded.`} />
                        )}
                     </div>
                   </div>
@@ -497,7 +497,7 @@ export default function App() {
 
                       <div className="p-5 border border-border-subtle bg-primary/5 rounded-lg shadow-inner">
                         <h4 className="text-[10px] font-bold uppercase opacity-60 mb-2">Monthly Installment</h4>
-                        <div className="text-3xl font-bold tracking-tighter text-primary">${simulationData.avgMonthlyInvest.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                        <div className="text-3xl font-bold tracking-tighter text-primary">VND{simulationData.avgMonthlyInvest.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
                         <p className="text-[9px] opacity-40 italic mt-2 font-bold leading-tight">Average of recent net cash flows after investment split applied.</p>
                       </div>
                     </div>
@@ -531,7 +531,7 @@ export default function App() {
                           <div key={stock.symbol} className="border border-border-subtle p-5 rounded-lg bg-white/40 hover:bg-white/60 transition-all hover:scale-[1.02] text-center group cursor-default">
                             <div className="text-sm font-bold tracking-tighter text-primary mb-1 underline underline-offset-2">{stock.symbol}</div>
                             <div className="text-[9px] opacity-50 uppercase font-bold tracking-widest mb-4 truncate">{stock.name}</div>
-                            <div className="text-xl font-bold tracking-tight text-emerald-900">${simulationData.allocationPerStock.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                            <div className="text-xl font-bold tracking-tight text-emerald-900">VND{simulationData.allocationPerStock.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
                             <div className="text-[8px] uppercase font-bold opacity-30 tracking-widest mt-1">Monthly Lot</div>
                           </div>
                         ))}
@@ -547,11 +547,11 @@ export default function App() {
                             <XAxis dataKey="year" stroke="rgba(116, 7, 14, 0.4)" fontSize={10} tickLine={false} axisLine={false} unit="y" />
                             <YAxis 
                                 stroke="rgba(116, 7, 14, 0.4)" fontSize={10} tickLine={false} axisLine={false} 
-                                tickFormatter={(val) => `$${(val / 1000000).toFixed(1)}M`} 
+                                tickFormatter={(val) => `VNDVND{(val / 1000000).toFixed(1)}M`} 
                             />
                             <Tooltip 
                                 contentStyle={{ backgroundColor: '#F4E3B2', border: '1px solid rgba(116, 7, 14, 0.2)', borderRadius: '2px', fontSize: '11px' }}
-                                labelFormatter={(label) => `Year ${label}`}
+                                labelFormatter={(label) => `Year VND{label}`}
                             />
                             <Area 
                                 type="monotone" dataKey="value" stroke="#74070E" strokeWidth={2}
@@ -625,7 +625,7 @@ export default function App() {
                             <div className="p-5 border border-primary/10 rounded-lg bg-primary text-cream shadow-md">
                                 <span className="text-[10px] font-bold uppercase opacity-60 tracking-widest mb-2 block">Investment Utility</span>
                                 <div className="text-2xl font-bold">
-                                    ${(currentMonthSummary.net * (investmentRate / 100)).toLocaleString()} / mo
+                                    VND{(currentMonthSummary.net * (investmentRate / 100)).toLocaleString()} / mo
                                 </div>
                                 <div className="text-[9px] uppercase font-bold mt-1 opacity-60 italic">Current Capital Engine</div>
                             </div>
@@ -634,7 +634,7 @@ export default function App() {
 
                     <div className="p-6 border-l-4 border-primary bg-white/40 rounded shadow-sm italic">
                         <p className="text-xs text-primary/80 leading-relaxed font-medium">
-                            "System indicates that maintaining a net flow of <span className="font-bold underline decoration-primary/20">${monthlyData.length > 0 ? (monthlyData.reduce((a, b) => a + b.net, 0) / monthlyData.length).toLocaleString(undefined, { maximumFractionDigits: 0 }) : '0'}</span> is the critical base for your 30-year simulation targets. Fluctuations below this threshold will exponentially delay milestone achievement."
+                            "System indicates that maintaining a net flow of <span className="font-bold underline decoration-primary/20">VND{monthlyData.length > 0 ? (monthlyData.reduce((a, b) => a + b.net, 0) / monthlyData.length).toLocaleString(undefined, { maximumFractionDigits: 0 }) : '0'}</span> is the critical base for your 30-year simulation targets. Fluctuations below this threshold will exponentially delay milestone achievement."
                         </p>
                         <div className="mt-2 text-[9px] font-bold uppercase tracking-widest opacity-40">&mdash; Financial Advisory Model Alpha</div>
                     </div>
@@ -704,7 +704,7 @@ function StatusCard({ title, value, icon, trend, isHighlight = false }: { title:
           isHighlight ? "opacity-70" : "opacity-40"
         )}>{title}</p>
         <p className="text-3xl font-bold tracking-tighter">
-          ${Math.abs(value).toLocaleString(undefined, { minimumFractionDigits: 0 })}
+          VND{Math.abs(value).toLocaleString(undefined, { minimumFractionDigits: 0 })}
         </p>
       </div>
     </div>
@@ -721,7 +721,7 @@ function MilestoneCard({ label, value, year, color, isTotal }: { label: string; 
             )}
             <p className={cn("text-[10px] font-bold uppercase tracking-widest mb-2 italic", isTotal ? "opacity-70" : "opacity-40")}>{label}</p>
             <div className="flex items-baseline gap-1">
-              <span className="text-[10px] font-bold opacity-40 uppercase">$</span>
+              <span className="text-[10px] font-bold opacity-40 uppercase">VND</span>
               <p className="text-4xl font-bold tracking-tighter mb-4">{value.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
             </div>
             <div className="relative pl-4 border-l-2 border-primary">
