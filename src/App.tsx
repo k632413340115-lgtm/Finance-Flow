@@ -90,13 +90,28 @@ const STOCK_TICKERS = [
 export default function App() {
   // State
   const [transactions, setTransactions] = useState<Transaction[]>(() => {
+    // Check for new key first
     const saved = localStorage.getItem('financeflow_transactions');
-    return saved ? JSON.parse(saved) : [];
+    if (saved) return JSON.parse(saved);
+    
+    // Legacy migration check
+    const legacy = localStorage.getItem('wealthflow_transactions');
+    if (legacy) {
+      localStorage.setItem('financeflow_transactions', legacy);
+      // We keep the old one for one more session just in case, but return the data
+      return JSON.parse(legacy);
+    }
+    return [];
   });
 
   const [tickers, setTickers] = useState(() => {
     const saved = localStorage.getItem('financeflow_tickers');
-    return saved ? JSON.parse(saved) : [
+    if (saved) return JSON.parse(saved);
+
+    const legacy = localStorage.getItem('wealthflow_tickers');
+    if (legacy) return JSON.parse(legacy);
+
+    return [
       { symbol: 'FPT', name: 'Công nghệ FPT' },
       { symbol: 'VCB', name: 'Vietcombank' },
       { symbol: 'HPG', name: 'Thép Hòa Phát' },
@@ -184,8 +199,7 @@ export default function App() {
 
   // Simulation Logic
   const simulationData = useMemo(() => {
-    // Force a "Healthy Preview" if no transactions exist
-    let baseInvest = 5000000; // 5M VND default seed
+    let baseInvest = 0; 
     
     if (monthlyData.length > 0) {
       const recentNetFlows = monthlyData.slice(-6).map(m => Math.max(0, m.net));
