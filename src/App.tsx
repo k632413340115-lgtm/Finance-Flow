@@ -409,7 +409,7 @@ export default function App() {
           <div className="text-right hidden sm:block">
             <p className="text-[9px] uppercase opacity-60 font-bold leading-none mb-1">Portfolio Balance</p>
             <p className="text-sm font-bold tracking-tight">
-              {totalBalance.toLocaleString(undefined, { maximumFractionDigits: 0 })} ₫
+              {totalBalance.toLocaleString(undefined, { maximumFractionDigits: 0 })} VND
             </p>
           </div>
           <div className="w-8 h-8 rounded-full border border-cream/20 bg-white/10 flex items-center justify-center cursor-pointer hover:bg-white/20 transition-colors lg:hidden" onClick={() => {
@@ -517,9 +517,9 @@ export default function App() {
                           {monthlyData.slice().reverse().map((m) => (
                             <tr key={m.month} className="hover:bg-primary/5 transition-colors">
                               <td className="py-3 px-2 font-bold italic">{m.month}</td>
-                            <td className="py-3 px-2 opacity-80">{m.income.toLocaleString(undefined, { maximumFractionDigits: 0 })} ₫</td>
-                            <td className="py-3 px-2 opacity-80">{m.expense.toLocaleString(undefined, { maximumFractionDigits: 0 })} ₫</td>
-                            <td className="py-3 px-2 font-bold text-right italic decoration-primary/20">{m.net.toLocaleString(undefined, { maximumFractionDigits: 0 })} ₫</td>
+                            <td className="py-3 px-2 opacity-80">{m.income.toLocaleString(undefined, { maximumFractionDigits: 0 })} VND</td>
+                            <td className="py-3 px-2 opacity-80">{m.expense.toLocaleString(undefined, { maximumFractionDigits: 0 })} VND</td>
+                            <td className="py-3 px-2 font-bold text-right italic decoration-primary/20">{m.net.toLocaleString(undefined, { maximumFractionDigits: 0 })} VND</td>
                             </tr>
                           ))}
                         </tbody>
@@ -691,7 +691,7 @@ export default function App() {
                             </div>
                             <div className="flex items-center gap-6">
                               <span className={cn("text-lg font-bold tracking-tighter", t.type === 'INCOME' ? "text-emerald-800" : "text-primary italic opacity-80")}>
-                                {t.type === 'INCOME' ? '+' : '-'}{t.amount.toLocaleString(undefined, { maximumFractionDigits: 0 })} ₫
+                                {t.type === 'INCOME' ? '+' : '-'}{t.amount.toLocaleString(undefined, { maximumFractionDigits: 0 })} VND
                               </span>
                               <button onClick={() => deleteTransaction(t.id)} className="opacity-0 group-hover:opacity-100 transition-opacity text-primary/20 hover:text-primary">
                                 <Trash2 size={16} />
@@ -758,8 +758,8 @@ export default function App() {
 
                       <div className="p-5 border border-border-subtle bg-primary/5 rounded-lg shadow-inner">
                         <h4 className="text-[10px] font-bold uppercase opacity-60 mb-2">Monthly Stock Inflow</h4>
-                        <div className="text-3xl font-bold tracking-tighter text-primary">{simulationData.avgMonthlyInvest.toLocaleString(undefined, { maximumFractionDigits: 0 })} ₫</div>
-                        <p className="text-[9px] opacity-40 italic mt-2 font-bold leading-tight">Calculated as {stockAllocation}% of your average net cash flow ({simulationData.baseInvest.toLocaleString(undefined, { maximumFractionDigits: 0 })} ₫).</p>
+                        <div className="text-3xl font-bold tracking-tighter text-primary">{simulationData.avgMonthlyInvest.toLocaleString(undefined, { maximumFractionDigits: 0 })} VND</div>
+                        <p className="text-[9px] opacity-40 italic mt-2 font-bold leading-tight">Calculated as {stockAllocation}% of your average net cash flow ({simulationData.baseInvest.toLocaleString(undefined, { maximumFractionDigits: 0 })} VND).</p>
                       </div>
                     </div>
                    </div>
@@ -780,7 +780,7 @@ export default function App() {
                               <span className="text-[9px] opacity-40 uppercase font-bold">{ticker.name}</span>
                             </div>
                             <div className="text-right">
-                              <div className="text-[11px] font-bold text-primary">{(simulationData.avgMonthlyInvest / tickers.length).toLocaleString(undefined, { maximumFractionDigits: 0 })} ₫</div>
+                              <div className="text-[11px] font-bold text-primary">{(simulationData.avgMonthlyInvest / tickers.length).toLocaleString(undefined, { maximumFractionDigits: 0 })} VND</div>
                               <div className="text-[8px] opacity-40 uppercase font-bold tracking-tighter">Monthly Deposit</div>
                             </div>
                           </div>
@@ -869,7 +869,7 @@ export default function App() {
                           <div key={stock.symbol} className="border border-border-subtle p-5 rounded-lg bg-white/40 hover:bg-white/60 transition-all hover:scale-[1.02] text-center group cursor-default">
                             <div className="text-sm font-bold tracking-tighter text-primary mb-1 underline underline-offset-2">{stock.symbol}</div>
                             <div className="text-[9px] opacity-50 uppercase font-bold tracking-widest mb-4 truncate">{stock.name}</div>
-                            <div className="text-xl font-bold tracking-tight text-emerald-900">{simulationData.allocationPerStock.toLocaleString(undefined, { maximumFractionDigits: 0 })} ₫</div>
+                            <div className="text-xl font-bold tracking-tight text-emerald-900">{simulationData.allocationPerStock.toLocaleString(undefined, { maximumFractionDigits: 0 })} VND</div>
                             <div className="text-[8px] uppercase font-bold opacity-30 tracking-widest mt-1">Monthly Lot</div>
                           </div>
                         ))}
@@ -892,7 +892,7 @@ export default function App() {
                                     <Tooltip 
                                         contentStyle={{ backgroundColor: '#FAF9F6', border: '1px solid #812423', borderRadius: '4px' }}
                                         labelFormatter={(label) => `Year ${label}`}
-                                        formatter={(val: number, name: string) => [`${val.toLocaleString()} ₫`, name === 'Projected Wealth' ? 'Projected Wealth' : 'Principal Basis']}
+                                        formatter={(val: number, name: string) => [`${val.toLocaleString()} VND`, name === 'Projected Wealth' ? 'Projected Wealth' : 'Principal Basis']}
                                     />
                                     <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '9px', fontWeight: 'bold', textTransform: 'uppercase', opacity: 0.6 }} />
                                     <Area type="monotone" name="Projected Wealth" dataKey="value" stroke="#812423" fillOpacity={1} fill="url(#colorValue)" strokeWidth={2} />
@@ -903,17 +903,17 @@ export default function App() {
                         <div className="grid grid-cols-3 gap-4 p-4 border-t border-border-subtle/30 bg-white/20 mt-4">
                             <div className="text-center p-3 border border-primary/10 rounded bg-white/40 shadow-sm transition-transform hover:scale-105">
                                 <div className="text-[9px] font-bold uppercase opacity-50 mb-1">Year 10 Benchmark</div>
-                                <div className="text-sm font-bold text-primary">{simulationData.m10.toLocaleString()} ₫</div>
+                                <div className="text-sm font-bold text-primary">{simulationData.m10.toLocaleString()} VND</div>
                                 <div className="text-[8px] opacity-40 uppercase font-bold mt-1">Projected Wealth</div>
                             </div>
                             <div className="text-center p-3 border border-primary/10 rounded bg-white/40 shadow-sm transition-transform hover:scale-105">
                                 <div className="text-[9px] font-bold uppercase opacity-50 mb-1">Year 20 Benchmark</div>
-                                <div className="text-sm font-bold text-primary">{simulationData.m20.toLocaleString()} ₫</div>
+                                <div className="text-sm font-bold text-primary">{simulationData.m20.toLocaleString()} VND</div>
                                 <div className="text-[8px] opacity-40 uppercase font-bold mt-1">Projected Wealth</div>
                             </div>
                             <div className="text-center p-3 border border-primary/10 rounded bg-primary text-cream shadow-md transition-transform hover:scale-105">
                                 <div className="text-[9px] font-bold uppercase opacity-80 mb-1">Year 30 Milestone</div>
-                                <div className="text-sm font-bold font-serif">{simulationData.m30.toLocaleString()} ₫</div>
+                                <div className="text-sm font-bold font-serif">{simulationData.m30.toLocaleString()} VND</div>
                                 <div className="text-[8px] opacity-60 uppercase font-bold mt-1">Target Achievement</div>
                             </div>
                         </div>
@@ -967,7 +967,7 @@ export default function App() {
                    <div className="bg-white/40 border border-border-subtle p-6 rounded-xl shadow-sm">
                       <span className="text-[10px] font-bold uppercase opacity-40 block mb-2">Est. Gain</span>
                       <div className="text-3xl font-bold tracking-tighter text-primary">
-                        {((simulationData.m30 * (growthRate/100/12))).toLocaleString(undefined, { maximumFractionDigits: 0 })} ₫
+                        {((simulationData.m30 * (growthRate/100/12))).toLocaleString(undefined, { maximumFractionDigits: 0 })} VND
                       </div>
                       <div className="mt-2 text-[9px] font-bold opacity-40 uppercase">Monthly Passive</div>
                    </div>
@@ -1005,7 +1005,7 @@ export default function App() {
                                 <YAxis axisLine={false} tickLine={false} tick={{fontSize: 9, fontWeight: 'bold'}} tickFormatter={(val) => `${(val / 1_000_000_000).toFixed(1)}B`} />
                                 <Tooltip 
                                   contentStyle={{ backgroundColor: '#FAF9F6', borderRadius: '4px', border: '1px solid #812423' }}
-                                  formatter={(val) => `${val.toLocaleString()} ₫`}
+                                  formatter={(val) => `${val.toLocaleString()} VND`}
                                 />
                                 <Legend verticalAlign="top" align="right" height={36} wrapperStyle={{fontSize: '9px', fontWeight: 'bold', textTransform: 'uppercase'}} />
                                 <Area type="monotone" dataKey="aggressive" name="Optimistic (22%)" stroke="#059669" fill="#059669" fillOpacity={0.05} />
@@ -1036,7 +1036,7 @@ export default function App() {
                            <div className="space-y-2">
                               <span className="text-[10px] font-bold uppercase opacity-60">Insight #2: Portfolio Alpha</span>
                               <p className="text-sm italic leading-relaxed">
-                                Current allocation risk is low. System suggests you could {stockAllocation > 45 ? "hold" : "increase"} equity exposure. Tuning to 50% could add {((simulationData.m30 * 0.1)).toLocaleString(undefined, {maximumFractionDigits: 0})} ₫ to your 30-year terminal value.
+                                Current allocation risk is low. System suggests you could {stockAllocation > 45 ? "hold" : "increase"} equity exposure. Tuning to 50% could add {((simulationData.m30 * 0.1)).toLocaleString(undefined, {maximumFractionDigits: 0})} VND to your 30-year terminal value.
                               </p>
                            </div>
                         </div>
@@ -1130,7 +1130,7 @@ function StatusCard({ title, value, icon, trend, isHighlight = false }: { title:
           isHighlight ? "opacity-70" : "opacity-40"
         )}>{title}</p>
         <p className="text-3xl font-bold tracking-tighter">
-          {Math.abs(value).toLocaleString(undefined, { maximumFractionDigits: 0 })} ₫
+          {Math.abs(value).toLocaleString(undefined, { maximumFractionDigits: 0 })} VND
         </p>
       </div>
     </div>
@@ -1147,7 +1147,7 @@ function MilestoneCard({ label, value, year, color, isTotal }: { label: string; 
             )}
             <p className={cn("text-[10px] font-bold uppercase tracking-widest mb-2 italic", isTotal ? "opacity-70" : "opacity-40")}>{label}</p>
             <div className="flex items-baseline gap-1">
-              <p className="text-4xl font-bold tracking-tighter mb-4">{value.toLocaleString(undefined, { maximumFractionDigits: 0 })} ₫</p>
+              <p className="text-4xl font-bold tracking-tighter mb-4">{value.toLocaleString(undefined, { maximumFractionDigits: 0 })} VND</p>
             </div>
             <div className="relative pl-4 border-l-2 border-primary">
                <div className="text-[10px] italic opacity-70">Projected Milestone</div>
@@ -1170,7 +1170,7 @@ function AllocationCard({ label, value, percentage, description, isPrimary = fal
         </span>
       </div>
       <div className="text-sm font-bold tracking-tight text-primary">
-        {Math.max(0, value).toLocaleString(undefined, { maximumFractionDigits: 0 })} ₫
+        {Math.max(0, value).toLocaleString(undefined, { maximumFractionDigits: 0 })} VND
       </div>
       {description && (
         <p className="text-[8px] opacity-40 italic mt-1 leading-tight">{description}</p>
